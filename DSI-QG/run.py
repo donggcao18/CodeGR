@@ -13,6 +13,7 @@ from transformers import (
     HfArgumentParser,
     set_seed,
 )
+from datasets import load_dataset
 from trainer import DSITrainer, DocTqueryTrainer
 import numpy as np
 import torch
@@ -41,6 +42,9 @@ class RunArguments:
     top_k: Optional[int] = field(default=10)
     num_return_sequences: Optional[int] = field(default=10)
     q_max_length: Optional[int] = field(default=32)
+    is_text_indexing: Optional[bool] = field(default=False)
+    is_reverse: Optional[bool] = field(default=False)
+    only_code: Optional[bool] = field(default=False)
 
 
 def make_compute_metrics(tokenizer, valid_ids):
@@ -58,7 +62,7 @@ def make_compute_metrics(tokenizer, valid_ids):
             for docid in rank_list:
                 if docid not in filtered_rank_list and docid in valid_ids:
                     filtered_rank_list.append(docid)
-
+            
             hits = np.where(np.array(filtered_rank_list)[:10] == label_id)[0]
             if len(hits) != 0:
                 hit_at_10 += 1
@@ -98,17 +102,26 @@ def main():
     else:
         model = T5ForConditionalGeneration.from_pretrained(run_args.model_name)
 
-    if run_args.task == "docTquery":
+    if run_args.task == "docTquery" or run_args.task == "queryTdoc":
         train_dataset = IndexingTrainDataset(path_to_data=run_args.train_file,
                                              max_length=run_args.max_length,
                                              cache_dir='cache',
-                                             tokenizer=tokenizer)
+                                             tokenizer=tokenizer,
+                                             )
 
         valid_dataset = IndexingTrainDataset(path_to_data=run_args.valid_file,
                                              max_length=run_args.max_length,
                                              cache_dir='cache',
                                              remove_prompt=run_args.remove_prompt,
-                                             tokenizer=tokenizer)
+                                             tokenizer=tokenizer,
+                                             max_samples = run_args.eval_samples
+                                             )
+        
+        for dp in train_dataset:
+            print(tokenizer.decode(dp[0]))
+            print(dp[1])
+            break
+        
         trainer = DocTqueryTrainer(
             do_generation=False,
             model=model,
@@ -127,14 +140,17 @@ def main():
         train_dataset = IndexingTrainDataset(path_to_data=run_args.train_file,
                                              max_length=run_args.max_length,
                                              cache_dir='cache',
-                                             tokenizer=tokenizer)
+                                             tokenizer=tokenizer,
+                                             remove_prompt=run_args.remove_prompt,
+                                             only_code=run_args.only_code)
 
         valid_dataset = IndexingTrainDataset(path_to_data=run_args.train_file,
                                              max_length=run_args.max_length,
                                              cache_dir='cache',
                                              remove_prompt=run_args.remove_prompt,
                                              tokenizer=tokenizer,
-                                             max_samples = run_args.eval_samples)
+                                             max_samples = run_args.eval_samples,
+                                             only_code=run_args.only_code)
         
         test_dataset = IndexingTrainDataset(path_to_data=run_args.valid_file,
                                              max_length=run_args.max_length,
@@ -142,25 +158,81 @@ def main():
                                              remove_prompt=run_args.remove_prompt,
                                              tokenizer=tokenizer,
                                              max_samples = run_args.test_samples)
-        ################################################################
-        # docid generation constrain, we only generate integer docids.
-        if "codet5" in run_args.model_name: 
-            SPIECE_UNDERLINE = "Ġ"
-        else:
-            SPIECE_UNDERLINE = "▁"
-        INT_TOKEN_IDS = []
-        for token, id in tokenizer.get_vocab().items():
-            if token[0] == SPIECE_UNDERLINE:
-                if token[1:].isdigit():
-                    INT_TOKEN_IDS.append(id)
-            if token == SPIECE_UNDERLINE:
-                INT_TOKEN_IDS.append(id)
-            elif token.isdigit():
-                INT_TOKEN_IDS.append(id)
-        INT_TOKEN_IDS.append(tokenizer.eos_token_id)
+        
+        for dp in train_dataset:
+            print(tokenizer.decode(dp[0]))
+            break
+        print("="*100)
 
-        def restrict_decode_vocab(batch_idx, prefix_beam):
-            return INT_TOKEN_IDS
+        ################################################################
+        # docid generation constrain, we only generate integer docids. 
+        
+        if not run_args.is_text_indexing:
+            if "codet5" in run_args.model_name: 
+                SPIECE_UNDERLINE = "Ġ"
+            else:
+                SPIECE_UNDERLINE = "▁"
+            INT_TOKEN_IDS = []
+            for token, id in tokenizer.get_vocab().items():
+                if token[0] == SPIECE_UNDERLINE:
+                    if token[1:].isdigit():
+                        INT_TOKEN_IDS.append(id)
+                if token == SPIECE_UNDERLINE:
+                    INT_TOKEN_IDS.append(id)
+                elif token.isdigit():
+                    INT_TOKEN_IDS.append(id)
+            INT_TOKEN_IDS.append(tokenizer.eos_token_id)
+
+            def restrict_decode_vocab(batch_idx, prefix_beam):
+                return INT_TOKEN_IDS
+        else:
+            allowed_sentences = list(train_dataset.valid_ids)
+            print(allowed_sentences[0])
+            max_len_id = max([len(tokenizer.encode(x, add_special_tokens=False)) for x in allowed_sentences]) + 3
+            if run_args.id_max_length < max_len_id:
+                run_args.id_max_length = max_len_id
+                print("Change `run_args.id_max_length` to", run_args.id_max_length)
+            
+            def build_trie(sequences, tokenizer):
+                trie = {}
+                for seq in sequences:
+                    token_ids = tokenizer.encode(seq, add_special_tokens=False)
+                    node = trie
+                    for tok in token_ids:
+                        node = node.setdefault(tok, {})
+                    node["__end__"] = True  # mark end of sequence
+                return trie
+
+            trie = build_trie(allowed_sentences, tokenizer)
+            print("Building trie to decode docID: DONE!")
+
+            def get_next_tokens(node):
+                return [tok for tok in node.keys() if tok != "__end__"]
+
+            def find_trie_node(trie, prefix):
+                node = trie
+                
+                if len(prefix) == 1 and prefix[0] in [tokenizer.bos_token_id, tokenizer.pad_token_id]:
+                    return node
+                elif prefix[-1] == tokenizer.eos_token_id:
+                    return {tokenizer.eos_token_id: True}
+                else:
+                    prefix = prefix[1:]
+                    
+                for tok in prefix:
+                    if tok in node:
+                        node = node[tok]
+                    else:
+                        return {}  # dead end
+                return node
+
+            def restrict_decode_vocab(batch_id, input_ids):
+                # input_ids is shape [seq_len], we use the last generated tokens
+                node = find_trie_node(trie, input_ids.tolist())
+                
+                if "__end__" in node:
+                    return get_next_tokens(node) + [tokenizer.eos_token_id]
+                return get_next_tokens(node)
         ################################################################
         
         trainer = DSITrainer(
@@ -178,9 +250,15 @@ def main():
             id_max_length=run_args.id_max_length
         )
         if training_args.do_train:
-            trainer.train()
+            if os.path.isdir(run_args.model_name):
+                trainer.train(resume_from_checkpoint=run_args.model_name)
+            else:
+                trainer.train()
         preds, labels, metrics = trainer.predict(test_dataset)
-        predictions = tokenizer.batch_decode(preds[:,:,0])
+        
+        preds = preds.reshape(len(test_dataset), -1, run_args.id_max_length)        
+        
+        predictions = tokenizer.batch_decode(preds[:, 0, :], skip_special_tokens=True)
         with open(os.path.join(training_args.output_dir, "predictions.txt"), "w") as f:
             f.write("\n".join(predictions))
         
@@ -194,8 +272,14 @@ def main():
                                            path_to_data=run_args.valid_file,
                                            max_length=run_args.max_length,
                                            cache_dir='cache',
-                                           tokenizer=tokenizer)
+                                           tokenizer=tokenizer,
+                                           is_reverse=run_args.is_reverse)
 
+        for dp in generate_dataset:
+            print(tokenizer.decode(dp[0]))
+            break
+        print("="*100)
+        
         trainer = DocTqueryTrainer(
             do_generation=True,
             model=model,
@@ -212,7 +296,10 @@ def main():
                                           max_length=run_args.q_max_length)
         
         def process_query(query):
-            return " ".join(query.lower().split())
+            if not run_args.is_reverse:
+                return " ".join(query.lower().split())
+            else:
+                return query
     
         with open(os.path.join(training_args.output_dir, f"{run_args.lang}.q{run_args.num_return_sequences}"), 'w') as f:
             for batch_tokens, batch_ids in tqdm(zip(predict_results.predictions, predict_results.label_ids),

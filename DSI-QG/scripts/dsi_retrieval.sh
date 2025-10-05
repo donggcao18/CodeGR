@@ -29,4 +29,3 @@ CUDA_VISIBLE_DEVICES=1 python3 run.py \
         --dataloader_drop_last False \
         --metric_for_best_model Hits@10 \
         --greater_is_better True \
-        --remove_prompt True

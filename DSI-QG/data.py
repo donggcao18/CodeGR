@@ -6,6 +6,7 @@ from transformers import PreTrainedTokenizer, DataCollatorWithPadding
 import os
 
 
+
 class IndexingTrainDataset(Dataset):
     def __init__(
             self,
@@ -15,6 +16,7 @@ class IndexingTrainDataset(Dataset):
             tokenizer: PreTrainedTokenizer,
             remove_prompt=False,
             max_samples: int=-1,
+            only_code: bool=False
     ):
         if os.path.isdir(path_to_data):
             self.train_data = datasets.load_dataset(
@@ -29,8 +31,14 @@ class IndexingTrainDataset(Dataset):
                 cache_dir=cache_dir
             )['train']
             
+      
         if max_samples != -1:
             self.train_data = self.train_data.select(range(max_samples))
+        
+        self.train_data = self.train_data.map(lambda example: {"text_id": str(example["text_id"]) if len(tokenizer.encode(str(example["text_id"]), add_special_tokens=False)) < (tokenizer.model_max_length-2) 
+                                                               else tokenizer.decode(tokenizer.encode(str(example["text_id"]), add_special_tokens=False)[:tokenizer.model_max_length-2])})
+        if only_code:
+            self.train_data = self.train_data.filter(lambda x: x["text"].startswith("Code:"))
 
         self.max_length = max_length
         self.tokenizer = tokenizer
@@ -48,12 +56,20 @@ class IndexingTrainDataset(Dataset):
         if self.remove_prompt:
             data['text'] = data['text'][5:].strip() if data['text'].startswith('Code: ') else data['text']
             data['text'] = data['text'][6:].strip() if data['text'].startswith('Query: ') else data['text']
+        
         input_ids = self.tokenizer(data['text'],
                                    return_tensors="pt",
                                    truncation='only_first',
                                    max_length=self.max_length).input_ids[0]
+
         return input_ids, str(data['text_id'])
 
+
+prefixes = {
+    "apps": "Generate description for this Python code:\n",
+    "cosqa": "What is the purpose of below code:\n",
+    "synthetic-text2sql": "Generate query for this sql:\n"
+}
 
 class GenerateDataset(Dataset):
     def __init__(
@@ -63,13 +79,23 @@ class GenerateDataset(Dataset):
             max_length: int,
             cache_dir: str,
             tokenizer: PreTrainedTokenizer,
+            is_reverse: bool=False,
     ):
         self.data = []
         
         dataset = datasets.load_dataset("json", data_files=path_to_data)["train"]
-        dataset = dataset.filter(lambda example: example["text"].startswith("Code:")) # Only get data in indexing task
+        
+        if not is_reverse:
+            dataset = dataset.filter(lambda example: example["text"].startswith("Code:")) # Only get data in indexing task
+        
         for dp in dataset:
-            self.data.append((dp["text_id"], "Generate docstring for this {} code: {}".format(lang, dp["text"][5:].strip())))
+            if lang in ["Ruby", "Rust", "C", "JavaScript"]:
+                if not is_reverse:
+                    self.data.append((dp["text_id"], "Generate docstring for this {} code: {}".format(lang, dp["text"][5:].strip())))
+                else:
+                    self.data.append((dp["text_id"],dp["text"][6:].strip()))
+            else:
+                self.data.append((dp["text_id"], prefixes[lang]+ dp["text"][5:].strip()))
 
         # with open(path_to_data, 'r') as f:
         #     for data in f:

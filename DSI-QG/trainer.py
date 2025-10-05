@@ -3,7 +3,7 @@ from transformers.trainer import Trainer
 from torch import nn
 from torch.utils.data import Dataset
 import torch
-
+from time import time
 
 class DSITrainer(Trainer):
     def __init__(self, restrict_decode_vocab, id_max_length, **kwds):
@@ -27,6 +27,7 @@ class DSITrainer(Trainer):
         model.eval()
         # eval_loss = super().prediction_step(model, inputs, True, ignore_keys)[0]
         inputs['labels'] = inputs['labels'].to(self.args.device)
+        time1= time()
         with torch.no_grad():
             # Greedy search
             # doc_ids = model.generate(
@@ -38,18 +39,18 @@ class DSITrainer(Trainer):
             # Beam search
             batch_beams = model.generate(
                 inputs['input_ids'].to(self.args.device),
-                max_length=20,
+                max_length=self.id_max_length,
                 num_beams=20,
                 prefix_allowed_tokens_fn=self.restrict_decode_vocab,
-                num_return_sequences=20,
+                num_return_sequences=10,
                 early_stopping=True, )
-
+            
             if batch_beams.shape[-1] < self.id_max_length:
                 batch_beams = self._pad_tensors_to_max_len(batch_beams, self.id_max_length)
 
             inputs['labels'] = self._pad_tensors_to_max_len(inputs['labels'], self.id_max_length)
 
-            batch_beams = batch_beams.reshape(inputs['input_ids'].shape[0], 20, -1)
+            batch_beams = batch_beams.reshape(inputs['input_ids'].shape[0], -1, self.id_max_length)
 
         return (None, batch_beams, inputs['labels'])
 
@@ -96,13 +97,20 @@ class DocTqueryTrainer(Trainer):
                 model, inputs, prediction_loss_only=prediction_loss_only, ignore_keys=ignore_keys
             )
 
-        outputs = self.model.generate(
-            input_ids=inputs[0]['input_ids'].to(self.args.device),
-            attention_mask=inputs[0]['attention_mask'].to(self.args.device),
-            max_length=self.max_length,
-            do_sample=True,
-            top_k=self.top_k,
-            num_return_sequences=self.num_return_sequences)
+        if self.num_return_sequences == 1:
+            outputs = self.model.generate(
+                input_ids=inputs[0]['input_ids'].to(self.args.device),
+                attention_mask=inputs[0]['attention_mask'].to(self.args.device),
+                max_length=self.max_length)
+
+        else:
+            outputs = self.model.generate(
+                input_ids=inputs[0]['input_ids'].to(self.args.device),
+                attention_mask=inputs[0]['attention_mask'].to(self.args.device),
+                max_length=self.max_length,
+                do_sample=True,
+                top_k=self.top_k,
+                num_return_sequences=self.num_return_sequences)
         labels = torch.tensor(inputs[1], device=self.args.device).repeat_interleave(self.num_return_sequences)
 
         if outputs.shape[-1] < self.max_length:
