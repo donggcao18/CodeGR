@@ -19,6 +19,9 @@ class IndexingTrainDataset(Dataset):
             data_files=path_to_data,
             cache_dir=cache_dir
         )['train']
+
+        #for testing  the code functionality
+        self.train_datta = self.train_datta.select(range(1000))
         
         if max_samples != -1:
             self.train_data = self.train_data.take(max_samples)
