@@ -10,8 +10,8 @@ CUDA_VISIBLE_DEVICES=0 python train.py \
 --model_name Salesforce/codet5p-220m \
 --log_file log.txt \
 --save_dir ./results/codet5p-770m-Ruby-r32-e${NEPOCHS}-lr${LR}-len${LEN} \
---train_data /datadrive5/namlh35/CodeGR/data/dsi_data/C_train_r1.0.json \
---test_data /datadrive5/namlh35/CodeGR/data/dsi_data/C_test_r1.0.json \
+--train_data /content/CodeGR/data/indexed_data/indexed_data_metatdata_v2/Ruby_train_r1.0.json \
+--test_data /content/CodeGR/data/indexed_data/indexed_data_metatdata_v2/Ruby_test_r1.0.json \
 --max_length ${LEN} \
 --batch_size 64 \
 --gradient_accumulation_steps 2 \
