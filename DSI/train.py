@@ -116,7 +116,7 @@ def main():
                                          max_length=L,
                                          tokenizer=tokenizer,
                                          cache_dir=args.cache_dir,
-                                         max_samples=arg.train_samples)
+                                         max_samples=args.train_samples)
     
     # This eval set is really not the 'eval' set but used to report if the model can memorise (index) all training data points.
     eval_dataset = IndexingTrainDataset(path_to_data=args.train_data,
