@@ -2,7 +2,7 @@
 export HF_HOME=/datadrive5/namlh35/.cache
 export HF_DATASETS_CACHE=/datadrive5/namlh35/.cache
 
-NEPOCHS=10
+NEPOCHS=2
 LR=1e-4
 LEN=256
 
