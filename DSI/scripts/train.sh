@@ -13,7 +13,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py \
 --train_data /content/CodeGR/data/indexed_data/indexed_data_metatdata_v2/Ruby_train_r1.0.json \
 --test_data /content/CodeGR/data/indexed_data/indexed_data_metatdata_v2/Ruby_test_r1.0.json \
 --max_length ${LEN} \
---batch_size 8 \
+--batch_size 16 \
 --gradient_accumulation_steps 2 \
 --num_train_epochs ${NEPOCHS} \
 --eval_steps 20000 \
