@@ -16,7 +16,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py \
 --batch_size 8 \
 --gradient_accumulation_steps 2 \
 --num_train_epochs ${NEPOCHS} \
---eval_steps 500 \
+--eval_steps 20000 \
 --lr ${LR} \
 # --max_steps 10 \
 # --eval_samples 100 \
