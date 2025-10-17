@@ -2,6 +2,8 @@ import torch
 import numpy as np
 from transformers import AutoTokenizer, AutoModel
 from sklearn.cluster import MiniBatchKMeans
+from k_means_constrained import KMeansConstrained
+
 from typing import List, Tuple
 
 from datasets import load_from_disk, load_dataset, concatenate_datasets
@@ -114,9 +116,16 @@ class SemanticIDGenerator:
             return [(idx, prefix + str(i)) for i, idx in enumerate(indices)]
 
         k = min(self.k, len(indices))
-        kmeans = MiniBatchKMeans(n_clusters=k, 
-                                 random_state=self.random_state, 
-                                 batch_size=1024)
+
+        cluster_size = len(indices) // k
+        # kmeans = MiniBatchKMeans(n_clusters=k, 
+        #                          random_state=self.random_state, 
+        #                          batch_size=1024)
+        kmeans = KMeansConstrained(n_clusters=k,
+                                    size_min=cluster_size,
+                                    size_max=cluster_size + 1,
+                                    random_state=42)
+                               
         labels = kmeans.fit_predict(X[indices])
 
         results = []
