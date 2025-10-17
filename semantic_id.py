@@ -17,8 +17,8 @@ parser.add_argument('--save_dir', type=str)
 parser.add_argument('--doc_column', type=str, default="code")
 parser.add_argument('--query_column', type=str, default="docstring")
 parser.add_argument('--index_retrieval_ratio', type=float, default=32)
-parser.add_argument('--train_samples', type=int, default=1000)
-parser.add_argument('--test_samples', type=int, default=500)
+parser.add_argument('--train_samples', type=int, default=-1)
+parser.add_argument('--test_samples', type=int, default=-1)
 parser.add_argument('--track_metadata', action="store_true")
 parser.add_argument('--num_cluster', type=int, default=10)
 parser.add_argument('--min_cluster_size', type=int, default=100)
@@ -136,8 +136,8 @@ def main():
     # trainset = dataset["train_small"].select(range(args.train_samples))
     # testset = dataset["test"].select(range(args.test_samples))
 
-    trainset = dataset["train_small"]
-    testset = dataset["test"]
+    trainset = dataset["train_small"].select(range(args.train_samples))
+    testset = dataset["test"].select(range(args.test_samples))
     columns = trainset.column_names
     
     keep_metadata = []
