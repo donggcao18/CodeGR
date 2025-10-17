@@ -8,6 +8,8 @@ from tqdm import tqdm
 import logging, argparse
 import json, os
 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 class QueryEvalCallback(TrainerCallback):
     def __init__(self, test_dataset, logger, restrict_decode_vocab, args: TrainingArguments, tokenizer: AutoTokenizer): # tokenizer: T5Tokenizer AutoTokenizer
         self.tokenizer = tokenizer
@@ -90,7 +92,7 @@ def main():
     parser.add_argument('--test_data', type=str)
     parser.add_argument('--max_length', type=int, default=256)
     parser.add_argument('--lr', type=float, default=5e-5)
-    parser.add_argument('--batch_size', type=int, default=64)
+    parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--eval_steps', type=int, default=500)
     parser.add_argument('--num_train_epochs', type=int, default=3)
     parser.add_argument('--max_steps', type=int)

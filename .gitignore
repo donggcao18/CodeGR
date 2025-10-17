@@ -3,5 +3,5 @@ data
 **/__pycache__
 # **/models
 **/summarization
-Dense/results
+results/
 
