@@ -138,8 +138,8 @@ class SemanticIDGenerator:
                                                    sub_indices, 
                                                    sub_prefix))
         return results
-# def main(trainset, testset):
-if 1:
+def main(trainset, testset):
+
     def process_query(query):
         return "Query: " + " ".join(query.lower().split())
 
@@ -154,7 +154,9 @@ if 1:
 
     merged_dataset = concatenate_datasets([trainset, testset]).shuffle(seed=42)
 
-
+    print(merge_dataset.columns)
+    print(trainset.columns)
+    print(testset.columns)
     train_retrieval = []
     train_indexing = []
     test_data = []
@@ -214,5 +216,5 @@ if 1:
     with jsonlines.open(os.path.join(args.save_dir, f"{language}_test_r{args.index_retrieval_ratio}.json"), mode='w') as writer:
         writer.write_all(test_data)
 
-# main(train_set, test_set)
+main(train_set, test_set)
 
