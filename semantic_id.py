@@ -154,7 +154,7 @@ def main(trainset, testset):
 
     merged_dataset = concatenate_datasets([trainset, testset]).shuffle(seed=42)
 
-    print(merge_dataset.columns)
+    print(merged_dataset.columns)
     print(trainset.columns)
     print(testset.columns)
     train_retrieval = []
