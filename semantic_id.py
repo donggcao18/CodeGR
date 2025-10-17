@@ -138,7 +138,7 @@ class SemanticIDGenerator:
                                                    sub_indices, 
                                                    sub_prefix))
         return results
-if 1:
+def main(trainset, testset):
     def process_query(query):
         return "Query: " + " ".join(query.lower().split())
 
@@ -213,5 +213,5 @@ if 1:
     with jsonlines.open(os.path.join(args.save_dir, f"{language}_test_r{args.index_retrieval_ratio}.json"), mode='w') as writer:
         writer.write_all(test_data)
 
-main()
+main(trainset, testset)
 
