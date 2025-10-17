@@ -133,11 +133,16 @@ def main():
         os.mkdir(args.save_dir)
     
     language = args.data_path.split("/")[-1].split(".")[0]
-    # trainset = dataset["train_small"].select(range(args.train_samples))
-    # testset = dataset["test"].select(range(args.test_samples))
 
-    trainset = dataset["train_small"].select(range(args.train_samples))
-    testset = dataset["test"].select(range(args.test_samples))
+    if args.train_samples == -1:
+        trainset = dataset["train_small"]
+    else: 
+        trainset = dataset["train_small"].select(range(args.train_samples))
+    if args.test_samples == -1:
+        testset = dataset["test"]
+    else:
+        testset = dataset["test"].select(range(args.test_samples))
+        
     columns = trainset.column_names
     
     keep_metadata = []
