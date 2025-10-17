@@ -116,7 +116,7 @@ class SemanticIDGenerator:
                                                    sub_indices, 
                                                    sub_prefix))
         return results
-def main(trainset, testset):
+def main():
 
     def process_query(query):
         return "Query: " + " ".join(query.lower().split())
@@ -133,9 +133,9 @@ def main(trainset, testset):
         os.mkdir(args.save_dir)
     
     language = args.data_path.split("/")[-1].split(".")[0]
-    train_set = dataset["train_small"].select(range(args.train_samples))
-    test_set = dataset["test"].select(range(args.test_samples))
-    columns = train_set.column_names
+    trainset = dataset["train_small"].select(range(args.train_samples))
+    testset = dataset["test"].select(range(args.test_samples))
+    columns = trainset.column_names
     
     keep_metadata = []
     if args.track_metadata:
@@ -144,7 +144,7 @@ def main(trainset, testset):
     
     stop_words = []
     
-    print(len(train_set), len(test_set))
+    print(len(trainset), len(testset))
 
     trainset = trainset.map(lambda example: {"query": process_query(example[args.query_column]), "doc": process_doc(example[args.doc_column])})
     testset = testset.map(lambda example: {"query": process_query(example[args.query_column]), "doc": process_doc(example[args.doc_column])})
@@ -216,5 +216,5 @@ def main(trainset, testset):
     with jsonlines.open(os.path.join(args.save_dir, f"{language}_test_r{args.index_retrieval_ratio}.json"), mode='w') as writer:
         writer.write_all(test_data)
 
-main(train_set, test_set)
+main()
 
