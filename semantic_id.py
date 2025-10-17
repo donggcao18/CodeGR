@@ -126,7 +126,7 @@ class SemanticIDGenerator:
                                                    sub_indices, 
                                                    sub_prefix))
         return results
-def main():
+if 1:
     def process_query(query):
         return "Query: " + " ".join(query.lower().split())
 
