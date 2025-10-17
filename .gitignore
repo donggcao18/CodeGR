@@ -1,7 +1,7 @@
 data
 **/cache
 **/__pycache__
-**/models
+# **/models
 **/summarization
 Dense/results
 
