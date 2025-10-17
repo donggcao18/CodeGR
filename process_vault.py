@@ -2,7 +2,7 @@ from datasets import load_from_disk, load_dataset, concatenate_datasets
 import argparse
 import os
 import jsonlines
-from utils import get_node_by_kind, lang_parser
+# from utils import get_node_by_kind, lang_parser
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', type=str)

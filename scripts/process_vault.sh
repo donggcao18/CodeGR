@@ -6,8 +6,8 @@ export WANDB_DISABLED="true"
 for LANG in Ruby
 do
     python3 process_vault.py \
-    --data_path "/data/${LANG}.hf" \
-    --save_dir "/datadrive5/namlh35/CodeGR/data/indexed_data/indexed_data_metatdata_v2" \
+    --data_path "/content/CodeGR/data/${LANG}.hf" \
+    --save_dir "/content/CodeGR/data/indexed_data/indexed_data_metatdata_v2" \
     --train_samples -1 \
     --test_samples -1 \
     --index_retrieval_ratio 1 \

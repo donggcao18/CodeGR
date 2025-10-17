@@ -96,7 +96,8 @@ def main():
     parser.add_argument('--max_steps', type=int)
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1)
     parser.add_argument('--id_max_length', type=int, default=20)
-    parser.add_argument('--test_samples', type=int, default=-1)
+    parser.add_argument('--train_samples', type=int, default=1000)
+    parser.add_argument('--test_samples', type=int, default=100)
     parser.add_argument('--eval_samples', type=int, default=5000)
 
     args = parser.parse_args()
@@ -114,7 +115,8 @@ def main():
     train_dataset = IndexingTrainDataset(path_to_data=args.train_data,
                                          max_length=L,
                                          tokenizer=tokenizer,
-                                         cache_dir=args.cache_dir)
+                                         cache_dir=args.cache_dir,
+                                         max_samples=args.train_samples)
     
     # This eval set is really not the 'eval' set but used to report if the model can memorise (index) all training data points.
     eval_dataset = IndexingTrainDataset(path_to_data=args.train_data,
