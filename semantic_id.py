@@ -44,7 +44,7 @@ if args.track_metadata:
 
 stop_words = []
 
-print(len(trainset), len(testset))
+print(len(train_set), len(test_set))
 
 class CodeBERTSentenceEncoder:
     def __init__(self, model_name="microsoft/codebert-base", device=None):
