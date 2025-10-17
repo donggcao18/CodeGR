@@ -95,6 +95,8 @@ class SemanticIDGenerator:
             List of semantic ID strings like "231"
         """
         N = X.shape[0]
+        print(f"Number of samples: {N}")
+        
         doc_indices = np.arange(N)
         assigned = self._recursive_cluster(X, doc_indices, prefix="")
 
@@ -108,6 +110,7 @@ class SemanticIDGenerator:
                            prefix: str) -> List[Tuple[int, str]]:
         
         if len(indices) <= self.c:
+            print(len(indices))
             return [(idx, prefix + str(i)) for i, idx in enumerate(indices)]
 
         k = min(self.k, len(indices))
