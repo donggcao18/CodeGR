@@ -20,12 +20,13 @@ parser.add_argument('--index_retrieval_ratio', type=float, default=32)
 parser.add_argument('--train_samples', type=int, default=-1)
 parser.add_argument('--test_samples', type=int, default=-1)
 parser.add_argument('--track_metadata', action="store_true")
-parser.add_argument('--num_cluster', type=int, default=10)
-parser.add_argument('--min_cluster_size', type=int, default=100)
+parser.add_argument('--semantic_id', action="store_true")
+parser.add_argument('--num_cluster', type=int, default=10, help="Only semantic_id=true, Number of clusters at each level")
+parser.add_argument('--min_cluster_size', type=int, default=100, help="Only semantic_id=true, Minimum size of each cluster")
 args = parser.parse_args()
 
 class CodeBERTSentenceEncoder:
-    def __init__(self, model_name="microsoft/codebert-base", device=None):
+    def __init__(self, model_name="microsoft/unixcoder-base", device=None):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
@@ -116,6 +117,7 @@ class SemanticIDGenerator:
                                                    sub_indices, 
                                                    sub_prefix))
         return results
+
 def main():
 
     def process_query(query):
@@ -173,14 +175,16 @@ def main():
     cnt = 0
 
     ###
-
-    text_list = merged_dataset['doc']
-    encoder = CodeBERTSentenceEncoder()
-    embeddings = encoder.encode(text_list, batch_size=64, normalize=True)
-    ssi = SemanticIDGenerator()
-    semantic_ids = ssi.fit(embeddings)
-    
+    if args.semantic_id:
+        text_list = merged_dataset['doc']
+        encoder = CodeBERTSentenceEncoder()
+        embeddings = encoder.encode(text_list, batch_size=64, normalize=True)
+        ssi = SemanticIDGenerator()
+        semantic_ids = ssi.fit(embeddings)
+    else:
+        semantic_ids = [str(i) for i in range(len(merged_dataset))]
     ###
+
     for dp, sem_id in zip(merged_dataset, semantic_ids):
         dp_r = {x: dp[x] for x in keep_metadata}
         dp_r["text_id"]= str(sem_id)

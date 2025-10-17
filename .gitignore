@@ -3,5 +3,11 @@ data
 **/__pycache__
 # **/models
 **/summarization
-Dense/results
-
+results/
+wandb/
+*.json
+*.bin
+*.log
+*.safetensors
+*.pth
+*.pt

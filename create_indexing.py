@@ -2,12 +2,12 @@ from datasets import load_dataset
 import os
 import jsonlines
 
-is_num_to_text=True
+is_num_to_text=False
 is_num=False
-is_query_to_code = False
+is_query_to_code = True
 
 text_id_column = "url_based_id"
-for LANG in ['C']:
+for LANG in ['Ruby']:
     save_dir="/datadrive5/namlh35/CodeGR/data/augmentation/our_index_query_augment_v2"
     
     if not os.path.exists(save_dir):
