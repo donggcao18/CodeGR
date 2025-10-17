@@ -24,28 +24,6 @@ parser.add_argument('--num_cluster', type=int, default=10)
 parser.add_argument('--min_cluster_size', type=int, default=100)
 args = parser.parse_args()
 
-if os.path.isdir(args.data_path):
-    dataset = load_from_disk(args.data_path)
-else:
-    dataset = load_dataset("json", data_files=args.data_path)
-
-if not os.path.exists(args.save_dir):
-    os.mkdir(args.save_dir)
-
-language = args.data_path.split("/")[-1].split(".")[0]
-train_set = dataset["train_small"].select(range(args.train_samples))
-test_set = dataset["test"].select(range(args.test_samples))
-columns = train_set.column_names
-
-keep_metadata = []
-if args.track_metadata:
-    keep_metadata = ['hexsha', 'repo', 'path', 'identifier', 'parameters']
-    columns = [x for x in columns if x not in keep_metadata]
-
-stop_words = []
-
-print(len(train_set), len(test_set))
-
 class CodeBERTSentenceEncoder:
     def __init__(self, model_name="microsoft/codebert-base", device=None):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -145,6 +123,28 @@ def main(trainset, testset):
 
     def process_doc(code):
         return "Code: " + code
+
+    if os.path.isdir(args.data_path):
+        dataset = load_from_disk(args.data_path)
+    else:
+        dataset = load_dataset("json", data_files=args.data_path)
+    
+    if not os.path.exists(args.save_dir):
+        os.mkdir(args.save_dir)
+    
+    language = args.data_path.split("/")[-1].split(".")[0]
+    train_set = dataset["train_small"].select(range(args.train_samples))
+    test_set = dataset["test"].select(range(args.test_samples))
+    columns = train_set.column_names
+    
+    keep_metadata = []
+    if args.track_metadata:
+        keep_metadata = ['hexsha', 'repo', 'path', 'identifier', 'parameters']
+        columns = [x for x in columns if x not in keep_metadata]
+    
+    stop_words = []
+    
+    print(len(train_set), len(test_set))
 
     trainset = trainset.map(lambda example: {"query": process_query(example[args.query_column]), "doc": process_doc(example[args.doc_column])})
     testset = testset.map(lambda example: {"query": process_query(example[args.query_column]), "doc": process_doc(example[args.doc_column])})
