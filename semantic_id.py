@@ -35,7 +35,7 @@ if not os.path.exists(args.save_dir):
 language = args.data_path.split("/")[-1].split(".")[0]
 train_set = dataset["train_small"].select(range(args.train_samples))
 test_set = dataset["test"].select(range(args.test_samples))
-columns = trainset.column_names
+columns = train_set.column_names
 
 keep_metadata = []
 if args.track_metadata:
