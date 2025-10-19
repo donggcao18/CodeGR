@@ -95,11 +95,11 @@ else:
         url_based_id_pool.append( dp_doc["url_based_id"])
         
         if dp["text_id"].startswith("train"):
-            dp_doc["text_id"] = dp["query"][5:].strip()
+            dp_doc["text_id"] = dp["query"][6:].strip()
             dp_doc["text"]= "Generate docstring for code: {}".format(dp["doc"])
             train_data.append(dp_doc)
         else:            
-            dp_doc["text_id"] = dp["query"][5:].strip()
+            dp_doc["text_id"] = dp["query"][6:].strip()
             dp_doc["text"]= "Generate docstring for code: {}".format(dp["doc"])
             test_data.append(dp_doc)
         cnt += 1
