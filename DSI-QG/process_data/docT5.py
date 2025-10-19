@@ -27,6 +27,10 @@ if not os.path.exists(args.save_dir):
 language = args.data_path.split("/")[-1].split(".")[0]
 trainset = dataset["train_small"]
 testset = dataset["test"]
+
+if args.test_samples != -1:
+    testset = testset.shuffle(seed=42)
+    testset = testset.take(args.test_samples)
 columns = trainset.column_names
 
 keep_metadata = []
@@ -91,12 +95,12 @@ else:
         url_based_id_pool.append( dp_doc["url_based_id"])
         
         if dp["text_id"].startswith("train"):
-            dp_doc["text_id"] = dp["query"]
-            dp_doc["text"]= dp["doc"]
+            dp_doc["text_id"] = dp["query"][5:].strip()
+            dp_doc["text"]= "Generate docstring for code: {}".format(dp["doc"])
             train_data.append(dp_doc)
         else:            
-            dp_doc["text_id"] = dp["query"]
-            dp_doc["text"]= dp["doc"]
+            dp_doc["text_id"] = dp["query"][5:].strip()
+            dp_doc["text"]= "Generate docstring for code: {}".format(dp["doc"])
             test_data.append(dp_doc)
         cnt += 1
         
