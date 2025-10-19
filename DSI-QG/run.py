@@ -36,7 +36,7 @@ class RunArguments:
     remove_prompt: Optional[bool] = field(default=False)
     train_file: str = field(default=None)
     valid_file: str = field(default=None)
-    eval_samples: Optional[int] = field(default=5000)
+    eval_samples: Optional[int] = field(default=2000)
     test_samples: Optional[int] = field(default=-1)
     task: str = field(default=None,  metadata={"help": "DSI, docTquery, generation"})
     top_k: Optional[int] = field(default=10)
