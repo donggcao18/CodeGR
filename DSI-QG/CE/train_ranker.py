@@ -144,7 +144,7 @@ class RankerTrainer(object):
 
             for ctx in ctxs[:nums]:
                 queries.append(sample['question'])
-                answers.append(sample['answers'][0] if 'answers' in sample else None)
+                # answers.append(sample['answers'][0] if 'answers' in sample else None)
                 contexts.append(ctx)
             
         inputs = sentence_to_inputs(queries, contexts, answers, self.tokenizer, args)
