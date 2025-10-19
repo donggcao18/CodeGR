@@ -5,7 +5,7 @@ export WANDB_DISABLED="true"
 
 for LANG in Ruby
 do
-        CUDA_VISIBLE_DEVICES=0 run.py \
+        CUDA_VISIBLE_DEVICES=0 python3 run.py \
                 --task "queryTdoc" \
                 --model_name "Salesforce/codet5p-220m" \
                 --run_name "vault_queryTdoc_codet5p" \
