@@ -3,15 +3,15 @@ export HF_HOME="/datadrive5/namlh35/.cache"
 export HF_DATASETS_CACHE="/datadrive5/namlh35/.cache"
 export WANDB_DISABLED="true"
 
-for LANG in JavaScript C
+for LANG in Ruby
 do
-        CUDA_VISIBLE_DEVICES=0,1 accelerate launch --multi_gpu --mixed_precision fp16 --num_processes 2 run.py \
+        CUDA_VISIBLE_DEVICES=0 run.py \
                 --task "queryTdoc" \
-                --model_name "Salesforce/codet5p-770m" \
+                --model_name "Salesforce/codet5p-220m" \
                 --run_name "vault_queryTdoc_codet5p" \
                 --max_length 256 \
-                --train_file /datadrive5/namlh35/CodeGR/data/augmentation/query_to_code_augment/${LANG}.q10 \
-                --valid_file /datadrive5/namlh35/CodeGR/data/augmentation/query_to_code_augment/${LANG}.q10 \
+                --train_file /content/CodeGR/DSI-QG/process_data/${LANG}_train_docT5.json \
+                --valid_file /content/CodeGR/DSI-QG/process_data/${LANG}_train_docT5.json \
                 --output_dir models/vault_queryTdoc_${LANG}_codet5p-770m \
                 --learning_rate 0.0001 \
                 --warmup_steps 1000 \
