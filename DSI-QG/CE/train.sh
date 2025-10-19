@@ -1,7 +1,7 @@
 #! /bin/bash
 
 outdir=runs/Ranker
-model_cfg=microsoft/codebert-base
+model_cfg=microsoft/unixcoder-base
 
 python3 train_ranker.py \
 --max_grad_norm 2.0 --warm_ratio 0.1 --seed 42 --ranker_model_cfg ${model_cfg} \
