@@ -96,11 +96,11 @@ else:
         
         if dp["text_id"].startswith("train"):
             dp_doc["text_id"] = dp["query"][6:].strip()
-            dp_doc["text"]= "Generate docstring for code: {}".format(dp["doc"])
+            dp_doc["text"]= "Generate docstring for code: {}".format(dp["doc"][5:].strip())
             train_data.append(dp_doc)
         else:            
             dp_doc["text_id"] = dp["query"][6:].strip()
-            dp_doc["text"]= "Generate docstring for code: {}".format(dp["doc"])
+            dp_doc["text"]= "Generate docstring for code: {}".format(dp["doc"][5:].strip())
             test_data.append(dp_doc)
         cnt += 1
         
