@@ -116,6 +116,7 @@ class SemanticIDGenerator:
                                                    sub_indices, 
                                                    sub_prefix))
         return results
+
 def main():
 
     def process_query(query):
