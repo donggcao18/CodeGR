@@ -25,7 +25,7 @@ do
                 --save_steps 1000 \
                 --save_total_limit 2 \
                 --load_best_model_at_end \
-                --gradient_accumulation_steps 4 \
+                --gradient_accumulation_steps 1 \
                 --report_to none \
                 --logging_steps 100 \
                 --dataloader_drop_last False \
