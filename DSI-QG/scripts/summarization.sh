@@ -12,11 +12,11 @@ do
                 --max_length 256 \
                 --train_file /content/CodeGR/DSI-QG/process_data/${LANG}_train_docT5.json \
                 --valid_file /content/CodeGR/DSI-QG/process_data/${LANG}_train_docT5.json \
-                --output_dir models/vault_queryTdoc_${LANG}_codet5p-770m \
+                --output_dir models/vault_queryTdoc_${LANG}_codet5p-220m \
                 --learning_rate 0.0001 \
                 --warmup_steps 1000 \
-                --per_device_train_batch_size 2 \
-                --per_device_eval_batch_size 2  \
+                --per_device_train_batch_size 16 \
+                --per_device_eval_batch_size 16  \
                 --eval_strategy steps \
                 --eval_steps 1000 \
                 --max_steps 10000 \
@@ -25,7 +25,7 @@ do
                 --save_steps 1000 \
                 --save_total_limit 2 \
                 --load_best_model_at_end \
-                --gradient_accumulation_steps 8 \
+                --gradient_accumulation_steps 4 \
                 --report_to none \
                 --logging_steps 100 \
                 --dataloader_drop_last False \

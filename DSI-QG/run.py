@@ -31,7 +31,7 @@ class RunArguments:
     model_name: str = field(default=None)
     model_path: Optional[str] = field(default=None)
     lang: str = field(default="Ruby")
-    max_length: Optional[int] = field(default=32)
+    max_length: Optional[int] = field(default=128) 
     id_max_length: Optional[int] = field(default=20)
     remove_prompt: Optional[bool] = field(default=False)
     train_file: str = field(default=None)
@@ -77,7 +77,11 @@ def main():
 
     parser = HfArgumentParser((TrainingArguments, RunArguments))
     training_args, run_args = parser.parse_args_into_dataclasses()
-
+    
+    for key, value in vars(training_args).items():
+        print(f"{key}: {value}")
+    for key, value in vars(run_args).items():
+        print(f"{key}: {value}")
     # # We use wandb logger: https://wandb.ai/site.
     # if training_args.local_rank == 0:  # only on main process
     #     # Initialize wandb run
