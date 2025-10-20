@@ -11,6 +11,5 @@ do
     --train_samples -1 \
     --test_samples -1 \
     --index_retrieval_ratio 1 \
-    --track_metadata \
-    --semantic_id 
+    --track_metadata 
 done
