@@ -7,7 +7,7 @@ for LANG in Ruby
 do
     python3 semantic_id.py \
     --data_path "/content/CodeGR/data/${LANG}.hf" \
-    --save_dir "/content/CodeGR/data/indexed_data/indexed_data_metatdata_v2" \
+    --save_dir "/root/workspace/CodeGR/data/original_indexed_data" \
     --train_samples -1 \
     --test_samples -1 \
     --index_retrieval_ratio 1 \
