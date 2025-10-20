@@ -25,7 +25,7 @@ parser.add_argument('--min_cluster_size', type=int, default=100)
 args = parser.parse_args()
 
 class CodeBERTSentenceEncoder:
-    def __init__(self, model_name="microsoft/codebert-base", device=None):
+    def __init__(self, model_name="microsoft/unixcoder-base", device=None):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
