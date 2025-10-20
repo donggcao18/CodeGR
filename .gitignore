@@ -11,3 +11,4 @@ wandb/
 *.safetensors
 *.pth
 *.pt
+*.arrow
