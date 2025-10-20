@@ -10,8 +10,8 @@ do
                 --model_name "Salesforce/codet5p-220m" \
                 --run_name "vault_queryTdoc_codet5p" \
                 --max_length 256 \
-                --train_file /kaggle/input/ruby-doct5/${LANG}_train_docT5.json \
-                --valid_file /kaggle/input/ruby-doct5/${LANG}_train_docT5.json \
+                --train_file /root/workspace/CodeGR/data/docT5query_training/${LANG}_train_docT5.json \
+                --valid_file /root/workspace/CodeGR/data/docT5query_training/${LANG}_train_docT5.json \
                 --output_dir models/vault_queryTdoc_${LANG}_codet5p-220m \
                 --learning_rate 0.0001 \
                 --warmup_steps 1000 \

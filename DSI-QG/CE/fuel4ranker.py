@@ -11,7 +11,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', type=str, default="datadrive5/namlh35/CodeGR/data/dsi_data")
 parser.add_argument('--save_dir', type=str, default="datadrive5/namlh35/CodeGR/data/dsi_data")
-parser.add_argument('--tokenizer', type=str, default="Salesforce/codet5-base")
+parser.add_argument('--tokenizer', type=str, default="microsoft/unixcoder-base")
 parser.add_argument('--split', type=str, default="Ruby")
 parser.add_argument('--num_hard_negatives', type=int, default=3)
 args = parser.parse_args()

@@ -12,6 +12,7 @@ from transformers import (
     RobertaTokenizerFast,
     HfArgumentParser,
     set_seed,
+    AutoModelForCausalLM
 )
 from datasets import load_dataset
 from trainer import DSITrainer, DocTqueryTrainer
@@ -25,6 +26,8 @@ from tqdm import tqdm
 import os
 set_seed(313)
 
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 @dataclass
 class RunArguments:
