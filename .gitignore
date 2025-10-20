@@ -6,3 +6,8 @@ data
 results/
 wandb/
 *.json
+*.bin
+*.log
+*.safetensors
+*.pth
+*.pt
