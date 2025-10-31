@@ -7,7 +7,6 @@ import shutil
 import subprocess
 import numpy as np
 import multiprocessing as mp
-from torch_scatter import scatter_max
 from transformers import T5ForConditionalGeneration
 from copy import copy
 from tqdm import tqdm

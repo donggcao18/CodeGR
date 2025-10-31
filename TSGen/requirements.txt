@@ -1,0 +1,10 @@
+
+
+torch-scatter==2.1.0
+psutil
+numpy==1.22.0
+omegaconf
+hydra-core
+faiss-gpu==1.7.2
+transformers==4.21.3
+torch==1.10.1
